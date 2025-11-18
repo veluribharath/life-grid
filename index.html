@@ -363,6 +363,22 @@ function WeeksOfLife() {
   const generateHtmlFile = () => {
     if (!stats) return;
 
+    // Generate week grid HTML
+    let weekGridHtml = '';
+    for (let row = 0; row < Math.ceil(stats.totalWeeks / 52); row++) {
+      weekGridHtml += '<div class="week-row">';
+      for (let col = 0; col < 52; col++) {
+        const weekNumber = row * 52 + col;
+        if (weekNumber < stats.totalWeeks) {
+          const isPast = weekNumber < stats.weeksLived;
+          const isCurrent = weekNumber === stats.weeksLived;
+          const cellClass = isPast ? 'week-past' : isCurrent ? 'week-current' : 'week-future';
+          weekGridHtml += `<div class="week-cell ${cellClass}"></div>`;
+        }
+      }
+      weekGridHtml += '</div>';
+    }
+
     const htmlContent = `<!DOCTYPE html>
 <html lang="${locale}">
 <head>
@@ -478,20 +494,7 @@ function WeeksOfLife() {
         <div class="section">
             <h2 class="section-title">${t('lifeInWeeksTitle')}</h2>
             <div class="week-grid">
-                ${Array.from({length: Math.ceil(stats.totalWeeks / 52)}, (_, row) => `
-                    <div class="week-row">
-                        ${Array.from({length: 52}, (_, col) => {
-                            const weekNumber = row * 52 + col;
-                            if (weekNumber < stats.totalWeeks) {
-                                const isPast = weekNumber < stats.weeksLived;
-                                const isCurrent = weekNumber === stats.weeksLived;
-                                const cellClass = isPast ? 'week-past' : isCurrent ? 'week-current' : 'week-future';
-                                return \`<div class="week-cell \${cellClass}"></div>\`;
-                            }
-                            return '';
-                        }).join('')}
-                    </div>
-                \`).join('')}
+                ${weekGridHtml}
             </div>
             <div class="legend">
                 <div class="legend-item">
@@ -528,7 +531,7 @@ function WeeksOfLife() {
         <div class="section">
             <h2 class="section-title">${t('societalContextTitle')}</h2>
             <p class="stat-text">
-                ${t('societalPopulation')} ${stats.birthYear ? \`<span class="stat-number">\${getFormattedNumber(getPopulationAtYear(stats.birthYear))}</span>\` : ""} ${t('societalPopulationEnd')} <span class="stat-number">8</span> ${t('societalPopulationFinal')}
+                ${t('societalPopulation')} ${stats.birthYear ? `<span class="stat-number">${getFormattedNumber(getPopulationAtYear(stats.birthYear))}</span>` : ""} ${t('societalPopulationEnd')} <span class="stat-number">8</span> ${t('societalPopulationFinal')}
             </p>
             <p class="stat-text">
                 ${t('societalMeetings')} <span class="stat-number">80,000</span> ${t('societalMeetingsMiddle')} <span class="stat-number">${getFormattedNumber(Math.round(80000 * (stats.percentageLived/100)))}</span> ${t('societalMeetingsEnd')}
